@@ -65,9 +65,87 @@
 
 <h2 id="安装hugo到本地">安装Hugo到本地</h2>
 
+<p>在Hugo官方的<a href="https://github.com/gohugoio/hugo/releases">release页面</a>，根据本地情况下载对应安装包。</p>
+
+<h3 id="windows上的安装">Windows上的安装</h3>
+
+<ol>
+<li>将下载的压缩包解压到<code>C:\Hugo\bin</code></li>
+<li>将<code>C:\Hugo\bin</code>追加到<code>PATH</code>环境变量</li>
+<li>在Windows控制台中用<code>hugo version</code>对配置进行确认。能输出hugo的版本信息就没什么问题了</li>
+</ol>
+
+<pre><code>&gt; hugo version
+Hugo Static Site Generator v0.23 windows/amd64 BuildDate: 2017-06-20T14:01:52+08:00
+</code></pre>
+
+<h3 id="macos上的安装">MacOS上的安装</h3>
+
+<p>使用<a href="https://brew.sh">Homebrew</a> 进行安装：</p>
+
+<pre><code>$ brew update &amp;&amp; brew install hugo
+</code></pre>
+
+<h2 id="生成静态网站">生成静态网站</h2>
+
+<pre><code>C:\Hugo\Sites\hugo-blog&gt; hugo new site hugo-blog
+Congratulations! Your new Hugo site is created in C:\Hugo\Sites\hugo-blog.
+</code></pre>
+
+<p>建议新建<code>C:\Hugo\Sites</code>目录来存放生成的网站。</p>
+
 <h2 id="安装hugo主题">安装Hugo主题</h2>
 
-<h2 id="新建文章">新建文章</h2>
+<p>*可以参考官方的<a href="https://gohugo.io/themes/installing/">说明</a>。</p>
+
+<p>以本站为例，采用了对日语长句显示优秀的主题“<a href="https://github.com/nijohando/hugo-rokkaku-theme">六角</a>”。</p>
+
+<pre><code>&gt; cd hugo-blog
+&gt; git clone https://github.com/nijohando/hugo-rokkaku-theme themes/hugo-rokkaku-theme
+</code></pre>
+
+<h2 id="配置静态网站">配置静态网站</h2>
+
+<p>修改config.toml文件。</p>
+
+<pre><code class="language-toml">baseURL = &quot;http://example.org/&quot;
+title = &quot;My New Hugo Site&quot;
+# 设置站点对中文的语言支持
+languageCode = &quot;zh&quot;
+hasCJKLanguage = true
+# 设置站点主题
+theme = &quot;hugo-rokkaku-theme&quot;
+
+# 以下是和主题相关的一些额外配置项
+[taxonomies]
+  tag = &quot;tags&quot;
+  archive = &quot;archives&quot;
+
+[params]
+  limitNumberOfLatests = 5
+  logoHtml = &quot;&lt;figure&gt;&lt;ul class=\&quot;c-logo\&quot;&gt;&lt;li/&gt;&lt;li/&gt;&lt;li/&gt;&lt;/ul&gt;&lt;/figure&gt;&quot;
+  styles = [&quot;/css/logo.css&quot;]
+  github = &quot;example&quot;
+  twitter = &quot;example&quot;
+  copyrightHtml = &quot;Copyright &amp;copy; nijohando.jp 2016&amp;ndash;2017&quot;
+
+</code></pre>
+
+<h2 id="新建文章及预览">新建文章及预览</h2>
+
+<p>新建一篇文章来确认一下目前为止的各个步骤。</p>
+
+<pre><code>&gt; hugo new post/sample.md
+C:\Hugo\Sites\hugo-blog\content\post\sample.md created
+</code></pre>
+
+<p>对生成的<code>content\post\sample.md</code>进行编辑。
+启动Hugo server之后即可在浏览器里预览编辑中的文章。添加<code>-D</code>选项，使得草稿也可以被预览。</p>
+
+<pre><code>&gt; hugo server -D
+</code></pre>
+
+<p>访问<a href="http://localhost:1313">http://localhost:1313/</a> 即可看到生成的静态网站了。</p>
 
 <h1 id="与github的连携">与Github的连携</h1>
 
@@ -147,9 +225,15 @@
 <ul>
 <li><a href="#使用hugo生成静态网站">使用Hugo生成静态网站</a>
 <ul>
-<li><a href="#安装hugo到本地">安装Hugo到本地</a></li>
+<li><a href="#安装hugo到本地">安装Hugo到本地</a>
+<ul>
+<li><a href="#windows上的安装">Windows上的安装</a></li>
+<li><a href="#macos上的安装">MacOS上的安装</a></li>
+</ul></li>
+<li><a href="#生成静态网站">生成静态网站</a></li>
 <li><a href="#安装hugo主题">安装Hugo主题</a></li>
-<li><a href="#新建文章">新建文章</a></li>
+<li><a href="#配置静态网站">配置静态网站</a></li>
+<li><a href="#新建文章及预览">新建文章及预览</a></li>
 </ul></li>
 <li><a href="#与github的连携">与Github的连携</a>
 <ul>
