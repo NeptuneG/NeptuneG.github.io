@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Wercker on 大ばくち</title>
+    <link>https://neptuneg.github.io/tags/wercker/</link>
+    <description>Recent content in Wercker on 大ばくち</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja-jp</language>
+    <lastBuildDate>Tue, 04 Jul 2017 16:17:25 +0800</lastBuildDate>
+    
+	<atom:link href="https://neptuneg.github.io/tags/wercker/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>使用hugo搭建github page</title>
+      <link>https://neptuneg.github.io/post/hugo-github-page/</link>
+      <pubDate>Tue, 04 Jul 2017 16:17:25 +0800</pubDate>
+      
+      <guid>https://neptuneg.github.io/post/hugo-github-page/</guid>
+      <description>使用Hugo生成静态网站 安装Hugo到本地 安装Hugo主题 新建文章 与Github的连携 关于Github Pages 新建git repository 推送本地Hugo Site</description>
+    </item>
+    
+  </channel>
+</rss>

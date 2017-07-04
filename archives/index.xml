@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Archives on 大ばくち</title>
+    <link>https://neptuneg.github.io/archives/</link>
+    <description>Recent content in Archives on 大ばくち</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja-jp</language>
+    <lastBuildDate>Tue, 04 Jul 2017 16:17:25 +0800</lastBuildDate>
+    
+	<atom:link href="https://neptuneg.github.io/archives/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>2017</title>
+      <link>https://neptuneg.github.io/archives/2017/</link>
+      <pubDate>Tue, 04 Jul 2017 16:17:25 +0800</pubDate>
+      
+      <guid>https://neptuneg.github.io/archives/2017/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

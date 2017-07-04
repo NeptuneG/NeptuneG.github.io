@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Theme on 大ばくち</title>
+    <link>https://neptuneg.github.io/tags/theme/</link>
+    <description>Recent content in Theme on 大ばくち</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja-jp</language>
+    <lastBuildDate>Sat, 01 Jul 2017 19:02:59 +0800</lastBuildDate>
+    
+	<atom:link href="https://neptuneg.github.io/tags/theme/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>ロレム・イプサム</title>
+      <link>https://neptuneg.github.io/sample/</link>
+      <pubDate>Sat, 01 Jul 2017 19:02:59 +0800</pubDate>
+      
+      <guid>https://neptuneg.github.io/sample/</guid>
+      <description>夏目漱石 私の個人主義 私は十月とうていそんな支配院ていうののところを向いだな。 もっと毎日にお尋ね人も向後こういう尊敬なくでしょだけで云うから得</description>
+    </item>
+    
+  </channel>
+</rss>
