@@ -1,1 +1,3 @@
-User-agent: *\nDisallow:
+User-agent: *
+Disallow:
+Sitemap: https://neptuneg.github.io/sitemap.xml
