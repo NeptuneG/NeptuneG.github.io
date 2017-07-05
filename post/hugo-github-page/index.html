@@ -2,7 +2,7 @@
 <html lang="ja">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>使用hugo搭建github page</title>
+<title>使用hugo搭建GitHub page</title>
 
   <link href="https://neptuneg.github.io/index.xml" rel="alternate" type="application/rss+xml" title="大ばくち" />
   <link href="https://neptuneg.github.io/index.xml" rel="feed" type="application/rss+xml" title="大ばくち" />
@@ -54,7 +54,7 @@
         <div class="c-calendar__day-of-month"><span>4</span></div>
         <div class="c-calendar__day-of-week"><span>火曜日</span></div>
     </div>
-    <h1 class="p-article__title__text">使用hugo搭建github page<span>
+    <h1 class="p-article__title__text">使用hugo搭建GitHub page<span>
     </h1>
   </div>
 
@@ -147,13 +147,14 @@ C:\Hugo\Sites\hugo-blog\content\post\sample.md created
 
 <p>访问<a href="http://localhost:1313">http://localhost:1313/</a> 即可看到生成的静态网站了。</p>
 
-<h1 id="与github的连携">与Github的连携</h1>
+<h1 id="与github的连携">与GitHub的连携</h1>
 
-<h2 id="关于github-pages">关于Github Pages</h2>
+<h2 id="关于github-pages">关于GitHub Pages</h2>
 
-<h2 id="新建git-repository">新建git repository</h2>
+<p>对于个人用户而言，<a href="https://help.github.com/articles/user-organization-and-project-pages/">GitHub Page</a>分为域名为<code>用户名.github.io</code>，且网站源文件存放于<code>用户名.github.io</code>repository下的<code>User Pages site</code>。以及域名为<code>用户名.github.io/项目名</code>，且网站源文件存放于项目<code>gh-pages</code>分支或<code>master</code>分支中<code>/docs</code>目录下的<code>Project Pages site</code>。
+为了便于管理和自动发布，可以将hugo站点文件放在一个repo中，把hugo生成的html文件放在<code>用户名.github.io</code>repo中。</p>
 
-<h2 id="推送本地hugo-site到github">推送本地Hugo Site到Github</h2>
+<h2 id="推送本地hugo-site到github">推送本地Hugo Site到GitHub</h2>
 
 <h1 id="使用wercker进行自动发布">使用wercker进行自动发布</h1>
 
@@ -235,11 +236,10 @@ C:\Hugo\Sites\hugo-blog\content\post\sample.md created
 <li><a href="#配置静态网站">配置静态网站</a></li>
 <li><a href="#新建文章及预览">新建文章及预览</a></li>
 </ul></li>
-<li><a href="#与github的连携">与Github的连携</a>
+<li><a href="#与github的连携">与GitHub的连携</a>
 <ul>
-<li><a href="#关于github-pages">关于Github Pages</a></li>
-<li><a href="#新建git-repository">新建git repository</a></li>
-<li><a href="#推送本地hugo-site到github">推送本地Hugo Site到Github</a></li>
+<li><a href="#关于github-pages">关于GitHub Pages</a></li>
+<li><a href="#推送本地hugo-site到github">推送本地Hugo Site到GitHub</a></li>
 </ul></li>
 <li><a href="#使用wercker进行自动发布">使用wercker进行自动发布</a></li>
 </ul>
