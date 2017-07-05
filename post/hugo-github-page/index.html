@@ -98,7 +98,7 @@ Congratulations! Your new Hugo site is created in C:\Hugo\Sites\hugo-blog.
 
 <p>*可以参考官方的<a href="https://gohugo.io/themes/installing/">说明</a>。</p>
 
-<p>以本站为例，采用了对日语长句显示优秀的主题“<a href="https://github.com/nijohando/hugo-rokkaku-theme">六角</a>”。</p>
+<p>以本站为例，采用了对汉字和长句显示优秀的主题“<a href="https://github.com/nijohando/hugo-rokkaku-theme">六角</a>”。</p>
 
 <pre><code>&gt; cd hugo-blog
 &gt; git clone https://github.com/nijohando/hugo-rokkaku-theme themes/hugo-rokkaku-theme
@@ -151,10 +151,46 @@ C:\Hugo\Sites\hugo-blog\content\post\sample.md created
 
 <h2 id="关于github-pages">关于GitHub Pages</h2>
 
-<p>对于个人用户而言，<a href="https://help.github.com/articles/user-organization-and-project-pages/">GitHub Page</a>分为域名为<code>用户名.github.io</code>，且网站源文件存放于<code>用户名.github.io</code>repository下的<code>User Pages site</code>。以及域名为<code>用户名.github.io/项目名</code>，且网站源文件存放于项目<code>gh-pages</code>分支或<code>master</code>分支中<code>/docs</code>目录下的<code>Project Pages site</code>。
-为了便于管理和自动发布，可以将hugo站点文件放在一个repo中，把hugo生成的html文件放在<code>用户名.github.io</code>repo中。</p>
+<p>对于个人用户而言，<a href="https://help.github.com/articles/user-organization-and-project-pages/">GitHub Page</a>有以下分类：</p>
+
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>域名</th>
+<th align="center">生成网站所用源文件的存放位置</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>User Pages site</td>
+<td><code>用户名.github.io</code></td>
+<td align="center"><code>master</code></td>
+</tr>
+
+<tr>
+<td>Project Pages site</td>
+<td><code>用户名.github.io/项目名</code></td>
+<td align="center"><code>master</code> ，<code>gh-pages</code>，或 <code>master</code> 的 <code>\docs</code> 目录</td>
+</tr>
+</tbody>
+</table>
+
+<p>为了便于管理和自动发布，可以将生成网站的文件放在一个repo中，把通过hugo生成的html文件放在<code>用户名.github.io</code> repo中。</p>
 
 <h2 id="推送本地hugo-site到github">推送本地Hugo Site到GitHub</h2>
+
+<p>在GitHub上新建一个repository，比如hugo-blog，之后可以按以下步骤推送之前的文件。</p>
+
+<pre><code>&gt; git init
+Initialized empty Git repository in C:/Hugo/Sites/hugo-blog/.git/
+&gt; git remote add origin https://github.com/NeptuneG/hugo-blog.git
+&gt; git pull https://github.com/NeptuneG/hugo-blog.git --allow-unrelated-histories
+&gt; git add .
+&gt; git commit -m &quot;add hugo site&quot;
+&gt; git push origin master
+</code></pre>
 
 <h1 id="使用wercker进行自动发布">使用wercker进行自动发布</h1>
 
