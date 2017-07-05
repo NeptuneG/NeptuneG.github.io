@@ -192,7 +192,41 @@ Initialized empty Git repository in C:/Hugo/Sites/hugo-blog/.git/
 &gt; git push origin master
 </code></pre>
 
-<h1 id="使用wercker进行自动发布">使用wercker进行自动发布</h1>
+<h1 id="使用wercker进行自动发布">使用Wercker进行自动发布</h1>
+
+<p><a href="http://www.wercker.com/">Wercker</a>免费提供建立在Docker上的持续集成服务。
+在Wercker创建的应用，会根据关联repository中 <em>wercker.yml</em> 文件进行build。</p>
+
+<pre><code class="language-yml">box: debian
+build:
+  steps:
+    # 为避免&quot;git: command not found&quot;的错误，事先安装git
+    - script:
+        name: install git
+        code: |
+            apt-get update
+            apt-get install git -y
+    # 下载主题
+    - script:
+        name : download theme
+        code : |
+            $(git clone https://github.com/nijohando/hugo-rokkaku-theme.git ./themes/hugo-rokkaku-theme)
+    # 通过hugo生成html文件
+    - arjen/hugo-build@1.19.0
+deploy:
+  steps:
+    - script:
+        name: install git
+        code: |
+            apt-get update
+            apt-get install git -y
+    # 将生成的html推送到User Pages的repo
+    - leipert/git-push:
+        gh_oauth: $GIT_TOKEN
+        repo: NeptuneG/NeptuneG.github.io
+        branch: master
+        basedir: public
+</code></pre>
 
   </section>
 
@@ -277,7 +311,7 @@ Initialized empty Git repository in C:/Hugo/Sites/hugo-blog/.git/
 <li><a href="#关于github-pages">关于GitHub Pages</a></li>
 <li><a href="#推送本地hugo-site到github">推送本地Hugo Site到GitHub</a></li>
 </ul></li>
-<li><a href="#使用wercker进行自动发布">使用wercker进行自动发布</a></li>
+<li><a href="#使用wercker进行自动发布">使用Wercker进行自动发布</a></li>
 </ul>
 </nav>
   </div>
