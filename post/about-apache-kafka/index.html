@@ -75,38 +75,68 @@
 
 <p>为了解决这些问题，开发一个从不同系统收集大规模不同类型数据并使其统一的平台的过程开始了。</p>
 
-<p>这个过程最开始是在一些既有的消息系统（如论文中提到的ActiveMQ）的基础上进行再开发。但是在处理产品级数据是会有以下问题发生。</p>
+<p>这个过程最开始是在一些既有的消息系统（如论文中提到的ActiveMQ）的基础上进行再开发。但是在处理产品级数据是会有以下问题发生：</p>
 
-<blockquote>
 <ul>
 <li>并行地读取消息队列中消息的时候，有必要记录每条消息被谁读走。因此大量的数据被使用后会导致内存不足，从而对性能造成严重的影响。</li>
 <li>批处理和实时处理同时读队列的时候，因为需要将数据进行拷贝，从而使得系统的效率降低。</li>
 </ul>
-</blockquote>
 
-<p>这些问题促使了_Kafka_的产生。Kafka着眼于以下几点。</p>
+<p>这些问题促使了 <em>Kafka</em> 的产生。Kafka着眼于以下几点：</p>
 
-<blockquote>
 <ul>
 <li>各类数据的统一使用</li>
 <li>各系统读同一份数据</li>
 <li>并行读取数据，高吞吐数据处理</li>
 </ul>
-</blockquote>
 
 <h2 id="kafka的原理">Kafka的原理</h2>
 
-<p>Kafka由<em>Broker</em> ，*Producer*和*Consumer*三部分组成。Producer负责发布消息，Consumer读取消息。而Broker作为Kafka的核心，构成群集维护在Consumer和Producer之间收发消息的消息队列。</p>
+<p>Kafka由 <em>Broker</em> ， <em>Producer</em> 和 <em>Consumer</em> 三部分组成。Producer负责发布消息，Consumer读取消息。而Broker作为Kafka的核心，构成群集维护在Consumer和Producer之间收发消息的消息队列。</p>
 
 <p><img src="http://kafka.apache.org/images/producer_consumer.png" alt="apache-kafka-structure" /></p>
 
 <h3 id="消息的交互">消息的交互</h3>
 
-<p>Kafka通过*Topic*来进行消息的交互。Topic类似于消息的类别。如，可以将和搜索相关的数据以<code>Search</code>的Topic名发送至Broker。在有此类数据的需求时，就通过<code>Search</code>这个Topic来向 Broker请求数据。</p>
+<p>Kafka通过*Topic*来进行消息的交互。Topic类似于消息的类别，逻辑上即可被认为是一个队列。如，可以将和搜索相关的数据以<code>Search</code>的Topic名发送至Broker。在有此类数据的需求时，就通过<code>Search</code>这个Topic来向Broker请求数据。</p>
 
 <h3 id="pull-vs-push">Pull vs Push</h3>
 
 <p>是Broker将数据<strong>Push</strong>到Consumer还是Consumer从Broker把数据<strong>Pull</strong>过来？这对整个消息系统的设计会产生很大的影响。当然各方都有支持和反对的声音。但是Kafka还是选择使用<strong>Pull</strong>型的Consumer。如果以<strong>Push</strong>的方式，对于处理各式各样不同的Consumer来说会比较困难。而且Broker必须对数据流量等信息有所感知。Kafka立意于以最快的速度消费数据，如果因为一些预想不到的原因，如网络堵塞等，误判了数据的发送量，则有可能带垮Consumer。如果以<strong>Pull</strong>的方式，Consumer可以自行进行管理以适当的速率对消息进行消费。</p>
+
+<h2 id="快速的消息消费">快速的消息消费</h2>
+
+<p>Kafka有趣的地方在于为了使Consumer能快速从Broker读取消息的架构。简单描述一下这是如何实现的。</p>
+
+<h3 id="并行读取消息队列的问题">并行读取消息队列的问题</h3>
+
+<p>对于快速消费消息而言，并行读取Broker的数据是肯定的了。在“初衷”里说到多个Consumer并行读取消息队列的问题：</p>
+
+<ul>
+<li>为了避免重复发送，需要记录每条消息被哪个Consumer读走</li>
+<li>并行读取和多Consumer的读取都会破坏消息队列在写入消息时的顺序性</li>
+</ul>
+
+<p>Kafka在设计上解决了这些问题。</p>
+
+<h3 id="broker中消息的保存">Broker中消息的保存</h3>
+
+<p>Kafka对于每个Topic都将消息保存在一个或多个 <em>Partition</em> 上。每条消息都会被追加在各个Partition的末尾。由此，每个Partition就保证了消息地顺序性。下图表示了消息被追加在Topic的3个Partition的过程。</p>
+
+<p><img src="http://kafka.apache.org/images/log_anatomy.png" alt="anatomy-of-a-topic" /></p>
+
+<h3 id="partition是如何被使用的">Partition是如何被使用的</h3>
+
+<p>总的来说Partition有两个目的：</p>
+
+<ul>
+<li>将多个服务器的消息分散（这样使得消息的保存不受限于一个服务器的容量）</li>
+<li>并行处理</li>
+</ul>
+
+<p>Consumer以<strong>Group</strong>为单位读取消息。并行处理通过“同一个Partition的数据，只能被同一Consumer Group中的同一Consumer消费”的制约来实现，但多个Consumer Group可同时消费一个消息。下图描述了所属于两个Consumer Group的多个Consumer对消息进行并行处理的情况。可以看出，虽然Group内部是并行的，从Group之间的角度看确实传统的发布/订阅范式。</p>
+
+<p><img src="http://kafka.apache.org/images/consumer-groups.png" alt="consumer-groups" /></p>
 
   </section>
 
@@ -189,6 +219,12 @@
 <ul>
 <li><a href="#消息的交互">消息的交互</a></li>
 <li><a href="#pull-vs-push">Pull vs Push</a></li>
+</ul></li>
+<li><a href="#快速的消息消费">快速的消息消费</a>
+<ul>
+<li><a href="#并行读取消息队列的问题">并行读取消息队列的问题</a></li>
+<li><a href="#broker中消息的保存">Broker中消息的保存</a></li>
+<li><a href="#partition是如何被使用的">Partition是如何被使用的</a></li>
 </ul></li>
 </ul></li>
 </ul>
