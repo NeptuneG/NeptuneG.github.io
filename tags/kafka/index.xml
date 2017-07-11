@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on 大ばくち</title>
-    <link>https://neptuneg.github.io/post/</link>
-    <description>Recent content in Posts on 大ばくち</description>
+    <title>Kafka on 大ばくち</title>
+    <link>https://neptuneg.github.io/tags/kafka/</link>
+    <description>Recent content in Kafka on 大ばくち</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja-jp</language>
     <lastBuildDate>Tue, 11 Jul 2017 23:20:25 +0800</lastBuildDate>
     
-	<atom:link href="https://neptuneg.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://neptuneg.github.io/tags/kafka/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -18,15 +18,6 @@
       
       <guid>https://neptuneg.github.io/post/about-apache-kafka/</guid>
       <description>Kafka的初衷 要理解Kafka的设计，如果直接研究Kafka在LinkedIn业务中的必要性，倒不如先看一篇IEEE的论文&amp;ldquo;B</description>
-    </item>
-    
-    <item>
-      <title>使用hugo搭建GitHub page</title>
-      <link>https://neptuneg.github.io/post/hugo-github-page/</link>
-      <pubDate>Tue, 04 Jul 2017 16:17:25 +0800</pubDate>
-      
-      <guid>https://neptuneg.github.io/post/hugo-github-page/</guid>
-      <description>使用Hugo生成静态网站 安装Hugo到本地 在Hugo官方的release页面，根据本地情况下载对应安装包。 Windows上的安装 将下载的压缩</description>
     </item>
     
   </channel>

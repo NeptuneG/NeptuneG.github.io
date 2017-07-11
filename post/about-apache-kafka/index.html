@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kafka一瞥</title>
+
+  <link href="https://neptuneg.github.io/index.xml" rel="alternate" type="application/rss+xml" title="大ばくち" />
+  <link href="https://neptuneg.github.io/index.xml" rel="feed" type="application/rss+xml" title="大ばくち" />
+
+<link rel="stylesheet" href="/css/theme.css">
+
+<link rel="stylesheet" href="/css/logo.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/sawarabimincho.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Istok+Web|Roboto+Mono">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js" integrity="sha256-KbfTjB0WZ8vvXngdpJGY3Yp3xKk+tttbqClO11anCIU=" crossorigin="anonymous"></script>
+
+<script>hljs.initHighlightingOnLoad();</script>
+<body>
+
+
+<div class="pane">
+
+  <div class="pane__main--splited">
+
+<header id="header">
+    <div class="p-signboard">
+      <a class="p-signboard__top-link" href="/">
+        <div class="c-brand">
+          
+            <figure><ul class="c-logo"><li/><li/><li/></ul></figure>
+          
+          <h1>大ばくち</h1>
+        </div>
+      </a>
+  </div>
+</header>
+
+
+<main>
+
+
+<article class="p-article">
+
+  
+
+  <div class="p-article__title">
+    <div class="c-calendar">
+        <div class="c-calendar__month">七　月</div>
+        <div class="c-calendar__day-of-month"><span>11</span></div>
+        <div class="c-calendar__day-of-week"><span>火曜日</span></div>
+    </div>
+    <h1 class="p-article__title__text">Kafka一瞥<span>
+    </h1>
+  </div>
+
+  <section class="p-article__content">
+  
+
+<p><img src="https://svn.apache.org/repos/asf/kafka/site/logos/kafka-logo-wide.png" alt="apache-kafka-logo" /></p>
+
+<hr />
+
+<h2 id="kafka的初衷">Kafka的初衷</h2>
+
+<p>要理解Kafka的设计，如果直接研究Kafka在LinkedIn业务中的必要性，倒不如先看一篇IEEE的论文<a href="http://sites.computer.org/debull/A12june/pipeline.pdf">&ldquo;Building LinkedIn&rsquo;s Real-time Activity Data Pipeline&rdquo;</a>。简单来说是这样的。</p>
+
+<p>LinkedIn需要处理两大块数据。一个是由大量用户在网站上产生的 <em>Activity Data</em> 。这部分数据通过Hadoop的批处理进行机器学习后可以用户改善内容推荐等服务。另外一部分则是 <em>系统日志</em> 。这些数据被实时处理后被一些服务所监视。这些都最近一些网站常见的搞法。</p>
+
+<p>然而， <em>Activity Data</em> 可能因为经过Hadoop批处理之后的的特化而不能再被实时处理，从而也就造成监视服务的延迟。对于 <em>系统日志</em> 而言，经过长时间的实时处理的特化，这些数据将不能再被容量规划和系统调试使用。为了改善这种情况，有必要以最小的成本来统一各个不同类型的数据。而且像LinkedIn这样以数据为业务核心的公司，有必要让数据能够被不同的团队简单的使用。</p>
+
+<p>为了解决这些问题，开发一个从不同系统收集大规模不同类型数据并使其统一的平台的过程开始了。</p>
+
+<p>这个过程最开始是在一些既有的消息系统（如论文中提到的ActiveMQ）的基础上进行再开发。但是在处理产品级数据是会有以下问题发生。</p>
+
+<blockquote>
+<ul>
+<li>并行地读取消息队列中消息的时候，有必要记录每条消息被谁读走。因此大量的数据被使用后会导致内存不足，从而对性能造成严重的影响。</li>
+<li>批处理和实时处理同时读队列的时候，因为需要将数据进行拷贝，从而使得系统的效率降低。</li>
+</ul>
+</blockquote>
+
+<p>这些问题促使了 <em>Kafka</em> 的产生。 <em>Kafka</em> 着眼于以下几点。</p>
+
+<blockquote>
+<ul>
+<li>各类数据的统一使用</li>
+<li>各系统读同一份数据</li>
+<li>并行读取数据，高吞吐数据处理</li>
+</ul>
+</blockquote>
+
+<h2 id="kafka的原理">Kafka的原理</h2>
+
+<p>Kafka由 <em>Broker</em> ， <em>Producer</em> 和 <em>Consumer</em> 三部分组成。<em>Producer</em> 负责发布消息，<em>Consumer</em> 读取消息。而 <em>Broker</em> 作为Kafka的核心，构成群集维护在 <em>Consumer</em> 和 <em>Producer</em> 之间收发消息的消息队列。</p>
+
+<p><img src="http://kafka.apache.org/images/producer_consumer.png" alt="apache-kafka-structure" /></p>
+
+<h3 id="消息的交互">消息的交互</h3>
+
+<p>Kafka通过 <em>Topic</em> 来进行消息的交互。 <em>Topic</em> 类似于消息的类别。如，可以将和搜索相关的数据以<code>Search</code>的 <em>Topic</em> 名发送至 <em>Broker</em> 。在有此类数据的需求时，就通过<code>Search</code>这个 <em>Topic</em> 来向 <em>Broker</em> 请求数据。</p>
+
+<h3 id="pull-vs-push">Pull vs Push</h3>
+
+<p>是 <em>Broker</em> 将数据<code>Push</code>到 <em>Consumer</em> 还是 <em>Consumer</em> 从 <em>Broker</em> 把数据<code>Pull</code>过来？这对整个消息系统的设计会产生很大的影响。当然各方都有支持和反对的声音。但是 <em>Kafka</em> 还是选择使用Pull型的 <em>Consumer</em> 。如果以<code>Push</code>的方式，对于处理各式各样不同的 <em>Consumer</em> 来说会比较困难。而且 <em>Broker</em> 必须对数据流量等信息有所感知。 <em>Kafka</em> 立意于以最快的速度消费数据，如果因为一些预想不到的原因，如网络堵塞等，误判了数据的发送量，则有可能带垮 <em>Consumer</em> 。如果以<code>Pull</code>的方式， <em>Consumer</em> 可以自行进行管理以适当的速率对消息进行消费。</p>
+
+  </section>
+
+</article>
+
+</main>
+
+<footer id="footer">
+  <div class="p-tail">
+    <ul class="p-tail__years">
+      
+      <li class="p-tail__years__year">
+        <a href="/archives/2017">2017</a>
+      </li>
+      
+    </ul>
+    <ul class="p-tail__tags">
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/design">design</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/github">github</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/hugo">hugo</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/kafka">kafka</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/theme">theme</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/wercker">wercker</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97">分布式消息队列</a>
+      </li>
+      
+    </ul>
+    <div class="p-tail__end">
+      <div class="p-tail__contact">
+        
+        <a href="https://github.com/NeptuneG"><i class="fa fa-github fa-3x" aria-hidden="true"></i></a>
+        
+        
+      </div>
+      <div class="p-tail__copyright">
+        Designed by <a href="https://github.com/nijohando/hugo-rokkaku-theme">二畳半堂</a>  &copy; 2017 Kan.U All rights reserved.
+      </div>
+  </div>
+    </div>
+</footer>
+
+
+</body>
+</html>
+
+
+</div>
+
+
+
+<div class="pane__side">
+  <div class="pane__side__content">
+    <div class="pane__side__content__title">目次</div>
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#kafka的初衷">Kafka的初衷</a></li>
+<li><a href="#kafka的原理">Kafka的原理</a>
+<ul>
+<li><a href="#消息的交互">消息的交互</a></li>
+<li><a href="#pull-vs-push">Pull vs Push</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+
+
+</div>
+
+
+</body>
+</html>
+

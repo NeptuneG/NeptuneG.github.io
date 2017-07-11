@@ -6,10 +6,19 @@
     <description>Recent content on 大ばくち</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja-jp</language>
-    <lastBuildDate>Tue, 04 Jul 2017 16:17:25 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 11 Jul 2017 23:20:25 +0800</lastBuildDate>
     
 	<atom:link href="https://neptuneg.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Kafka一瞥</title>
+      <link>https://neptuneg.github.io/post/about-apache-kafka/</link>
+      <pubDate>Tue, 11 Jul 2017 23:20:25 +0800</pubDate>
+      
+      <guid>https://neptuneg.github.io/post/about-apache-kafka/</guid>
+      <description>Kafka的初衷 要理解Kafka的设计，如果直接研究Kafka在LinkedIn业务中的必要性，倒不如先看一篇IEEE的论文&amp;ldquo;B</description>
+    </item>
     
     <item>
       <title>使用hugo搭建GitHub page</title>
