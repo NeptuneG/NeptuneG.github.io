@@ -69,9 +69,9 @@
 
 <p>要理解Kafka的设计，如果直接研究Kafka在LinkedIn业务中的必要性，倒不如先看一篇IEEE的论文<a href="http://sites.computer.org/debull/A12june/pipeline.pdf">&ldquo;Building LinkedIn&rsquo;s Real-time Activity Data Pipeline&rdquo;</a>。简单来说是这样的。</p>
 
-<p>LinkedIn需要处理两大块数据。一个是由大量用户在网站上产生的 <em>Activity Data</em> 。这部分数据通过Hadoop的批处理进行机器学习后可以用户改善内容推荐等服务。另外一部分则是 <em>系统日志</em> 。这些数据被实时处理后被一些服务所监视。这些都最近一些网站常见的搞法。</p>
+<p>LinkedIn需要处理两大块数据。一个是由大量用户在网站上产生的<code>Activity Data</code>。这部分数据通过Hadoop的批处理进行机器学习后可以用户改善内容推荐等服务。另外一部分则是<code>系统日志</code>。这些数据被实时处理后被一些服务所监视。这些都最近一些网站常见的搞法。</p>
 
-<p>然而， <em>Activity Data</em> 可能因为经过Hadoop批处理之后的的特化而不能再被实时处理，从而也就造成监视服务的延迟。对于 <em>系统日志</em> 而言，经过长时间的实时处理的特化，这些数据将不能再被容量规划和系统调试使用。为了改善这种情况，有必要以最小的成本来统一各个不同类型的数据。而且像LinkedIn这样以数据为业务核心的公司，有必要让数据能够被不同的团队简单的使用。</p>
+<p>然而， Activity Data可能因为经过Hadoop批处理之后的的特化而不能再被实时处理，从而也就造成监视服务的延迟。对于系统日志而言，经过长时间的实时处理的特化，这些数据将不能再被容量规划和系统调试使用。为了改善这种情况，有必要以最小的成本来统一各个不同类型的数据。而且像LinkedIn这样以数据为业务核心的公司，有必要让数据能够被不同的团队简单的使用。</p>
 
 <p>为了解决这些问题，开发一个从不同系统收集大规模不同类型数据并使其统一的平台的过程开始了。</p>
 
@@ -84,7 +84,7 @@
 </ul>
 </blockquote>
 
-<p>这些问题促使了 <em>Kafka</em> 的产生。 <em>Kafka</em> 着眼于以下几点。</p>
+<p>这些问题促使了_Kafka_的产生。Kafka着眼于以下几点。</p>
 
 <blockquote>
 <ul>
@@ -96,17 +96,17 @@
 
 <h2 id="kafka的原理">Kafka的原理</h2>
 
-<p>Kafka由 <em>Broker</em> ， <em>Producer</em> 和 <em>Consumer</em> 三部分组成。<em>Producer</em> 负责发布消息，<em>Consumer</em> 读取消息。而 <em>Broker</em> 作为Kafka的核心，构成群集维护在 <em>Consumer</em> 和 <em>Producer</em> 之间收发消息的消息队列。</p>
+<p>Kafka由<em>Broker</em> ，*Producer*和*Consumer*三部分组成。Producer负责发布消息，Consumer读取消息。而Broker作为Kafka的核心，构成群集维护在Consumer和Producer之间收发消息的消息队列。</p>
 
 <p><img src="http://kafka.apache.org/images/producer_consumer.png" alt="apache-kafka-structure" /></p>
 
 <h3 id="消息的交互">消息的交互</h3>
 
-<p>Kafka通过 <em>Topic</em> 来进行消息的交互。 <em>Topic</em> 类似于消息的类别。如，可以将和搜索相关的数据以<code>Search</code>的 <em>Topic</em> 名发送至 <em>Broker</em> 。在有此类数据的需求时，就通过<code>Search</code>这个 <em>Topic</em> 来向 <em>Broker</em> 请求数据。</p>
+<p>Kafka通过*Topic*来进行消息的交互。Topic类似于消息的类别。如，可以将和搜索相关的数据以<code>Search</code>的Topic名发送至Broker。在有此类数据的需求时，就通过<code>Search</code>这个Topic来向 Broker请求数据。</p>
 
 <h3 id="pull-vs-push">Pull vs Push</h3>
 
-<p>是 <em>Broker</em> 将数据<code>Push</code>到 <em>Consumer</em> 还是 <em>Consumer</em> 从 <em>Broker</em> 把数据<code>Pull</code>过来？这对整个消息系统的设计会产生很大的影响。当然各方都有支持和反对的声音。但是 <em>Kafka</em> 还是选择使用Pull型的 <em>Consumer</em> 。如果以<code>Push</code>的方式，对于处理各式各样不同的 <em>Consumer</em> 来说会比较困难。而且 <em>Broker</em> 必须对数据流量等信息有所感知。 <em>Kafka</em> 立意于以最快的速度消费数据，如果因为一些预想不到的原因，如网络堵塞等，误判了数据的发送量，则有可能带垮 <em>Consumer</em> 。如果以<code>Pull</code>的方式， <em>Consumer</em> 可以自行进行管理以适当的速率对消息进行消费。</p>
+<p>是Broker将数据<strong>Push</strong>到Consumer还是Consumer从Broker把数据<strong>Pull</strong>过来？这对整个消息系统的设计会产生很大的影响。当然各方都有支持和反对的声音。但是Kafka还是选择使用<strong>Pull</strong>型的Consumer。如果以<strong>Push</strong>的方式，对于处理各式各样不同的Consumer来说会比较困难。而且Broker必须对数据流量等信息有所感知。Kafka立意于以最快的速度消费数据，如果因为一些预想不到的原因，如网络堵塞等，误判了数据的发送量，则有可能带垮Consumer。如果以<strong>Pull</strong>的方式，Consumer可以自行进行管理以适当的速率对消息进行消费。</p>
 
   </section>
 
