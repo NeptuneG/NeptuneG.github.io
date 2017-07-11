@@ -82,7 +82,7 @@
 <li>批处理和实时处理同时读队列的时候，因为需要将数据进行拷贝，从而使得系统的效率降低。</li>
 </ul>
 
-<p>这些问题促使了 <em>Kafka</em> 的产生。Kafka着眼于以下几点：</p>
+<p>这些问题促使了Kafka的产生。Kafka着眼于以下几点：</p>
 
 <ul>
 <li>各类数据的统一使用</li>
@@ -98,11 +98,11 @@
 
 <h3 id="消息的交互">消息的交互</h3>
 
-<p>Kafka通过*Topic*来进行消息的交互。Topic类似于消息的类别，逻辑上即可被认为是一个队列。如，可以将和搜索相关的数据以<code>Search</code>的Topic名发送至Broker。在有此类数据的需求时，就通过<code>Search</code>这个Topic来向Broker请求数据。</p>
+<p>Kafka通过 <em>Topic</em> 来进行消息的交互。Topic类似于消息的类别，逻辑上即可被认为是一个队列。如，可以将和搜索相关的数据以<code>Search</code>的Topic名发送至Broker。在有此类数据的需求时，就通过<code>Search</code>这个Topic来向Broker请求数据。</p>
 
 <h3 id="pull-vs-push">Pull vs Push</h3>
 
-<p>是Broker将数据<strong>Push</strong>到Consumer还是Consumer从Broker把数据<strong>Pull</strong>过来？这对整个消息系统的设计会产生很大的影响。当然各方都有支持和反对的声音。但是Kafka还是选择使用<strong>Pull</strong>型的Consumer。如果以<strong>Push</strong>的方式，对于处理各式各样不同的Consumer来说会比较困难。而且Broker必须对数据流量等信息有所感知。Kafka立意于以最快的速度消费数据，如果因为一些预想不到的原因，如网络堵塞等，误判了数据的发送量，则有可能带垮Consumer。如果以<strong>Pull</strong>的方式，Consumer可以自行进行管理以适当的速率对消息进行消费。</p>
+<p>是Broker将数据 <em>Push</em> 到Consumer还是Consumer从Broker把数据 <em>Pull</em> 过来？这对整个消息系统的设计会产生很大的影响。当然各方都有支持和反对的声音。但是Kafka还是选择使用Pull型的Consumer。如果以Push的方式，对于处理各式各样不同的Consumer来说会比较困难。而且Broker必须对数据流量等信息有所感知。Kafka立意于以最快的速度消费数据，如果因为一些预想不到的原因，如网络堵塞等，误判了数据的发送量，则有可能带垮Consumer。如果以Pull的方式，Consumer可以自行进行管理以适当的速率对消息进行消费。</p>
 
 <h2 id="快速的消息消费">快速的消息消费</h2>
 
@@ -134,7 +134,7 @@
 <li>并行处理</li>
 </ul>
 
-<p>Consumer以<strong>Group</strong>为单位读取消息。并行处理通过“同一个Partition的数据，只能被同一Consumer Group中的同一Consumer消费”的制约来实现，但多个Consumer Group可同时消费一个消息。下图描述了所属于两个Consumer Group的多个Consumer对消息进行并行处理的情况。可以看出，虽然Group内部是并行的，从Group之间的角度看确实传统的发布/订阅范式。</p>
+<p>Consumer以 <em>Consumer Group</em> 为单位读取消息。并行处理通过<strong>同一个Partition的数据，只能被同一Consumer Group中的同一Consumer消费</strong>的制约来实现，但多个Consumer Group可同时消费一个消息。下图描述了所属于两个Consumer Group的多个Consumer对消息进行并行处理的情况。可以看出，虽然Group内部是并行的，从Group之间的角度看确实传统的发布/订阅范式。</p>
 
 <p><img src="http://kafka.apache.org/images/consumer-groups.png" alt="consumer-groups" /></p>
 
