@@ -67,7 +67,7 @@
 
 <h2 id="kafka的初衷">Kafka的初衷</h2>
 
-<p>要理解Kafka的设计，如果直接研究Kafka在LinkedIn业务中的必要性，倒不如先看一篇IEEE的论文<a href="http://sites.computer.org/debull/A12june/pipeline.pdf">&ldquo;Building LinkedIn&rsquo;s Real-time Activity Data Pipeline&rdquo;</a>。简单来说是这样的。</p>
+<p>要理解Kafka的设计，直接研究Kafka在LinkedIn的业务场景，倒不如先看一篇IEEE的论文<a href="http://sites.computer.org/debull/A12june/pipeline.pdf">&ldquo;Building LinkedIn&rsquo;s Real-time Activity Data Pipeline&rdquo;</a>。</p>
 
 <p>LinkedIn需要处理两大块数据。一个是由大量用户在网站上产生的<code>Activity Data</code>。这部分数据通过Hadoop的批处理进行机器学习后可以用户改善内容推荐等服务。另外一部分则是<code>系统日志</code>。这些数据被实时处理后被一些服务所监视。这些都最近一些网站常见的搞法。</p>
 
