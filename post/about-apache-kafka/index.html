@@ -134,7 +134,7 @@
 <li>并行处理</li>
 </ul>
 
-<p>Consumer以 <em>Consumer Group</em> 为单位读取消息。并行处理通过<strong>同一个Partition的数据，只能被同一Consumer Group中的同一Consumer消费</strong>的制约来实现，但多个Consumer Group可同时消费一个消息。下图描述了所属于两个Consumer Group的多个Consumer对消息进行并行处理的情况。可以看出，虽然Group内部是并行的，从Group之间的角度看确实传统的发布/订阅范式。</p>
+<p>Consumer以 <em>Consumer Group</em> 为单位读取消息。并行处理通过<strong>同一个Partition的数据，只能被同一Consumer Group中的同一Consumer消费</strong>的制约来实现，但多个Consumer Group可同时消费一个消息。下图描述了所属于两个Consumer Group的多个Consumer对消息进行并行处理的情况。可以看出，虽然Group内部是并行的，从Group之间的角度看却是传统的发布/订阅范式。</p>
 
 <p><img src="http://kafka.apache.org/images/consumer-groups.png" alt="consumer-groups" /></p>
 
