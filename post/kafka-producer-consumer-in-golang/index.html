@@ -61,22 +61,22 @@
   <section class="p-article__content">
   
 
-<p>Pull型的Consumer是Kafka的特征之一。因此Consumer可以根据实际的网络带宽环境来对所处理消息的流量进行调整。</p>
+<p>Producer和Consumer可以直接使用<a href="https://github.com/elastic/logstash">logstash</a>和<a href="https://github.com/fluent/fluentd">fluentd</a>针对Kafka的input/output插件，也可以基于各语言的库自行实现，比如对于go语言，可以使用Shopify提供的<a href="https://github.com/shopify/sarama">sarama</a>。</p>
+
+<p>假定业务场景大概是这样的：</p>
+
+<ul>
+<li>Broker - 来保存销售信息</li>
+<li>Produer - 向Broker发送销售信息</li>
+<li>Consumer1 - 实时地计算每个商品的已售数量</li>
+<li>Consumer2 - 对每天的销售信息进行合计</li>
+</ul>
+
+<p>然后将合计的结果保存在Redis并且可以从Redis获得销售排名的信息。</p>
 
 <hr />
 
-<h1 id="实现producer和consumer">实现Producer和Consumer</h1>
-
-<p>Producer和Consumer可以直接使用<a href="https://github.com/elastic/logstash">logstash</a>和<a href="https://github.com/fluent/fluentd">fluentd</a>针对Kafka的input/output插件，也可以基于各语言的库自行实现，比如对于go语言，可以使用Shopify提供的<a href="https://github.com/shopify/sarama">sarama</a>。</p>
-
-<p>假定业务场景大概是这样的：
-* Broker - 来保存销售信息
-* Produer - 向Broker发送销售信息
-* Consumer1 - 实时地计算每个商品的已售数量
-* Consumer2 - 对每天的销售信息进行合计
-然后将合计的结果保存在Redis并且可以从Redis获得销售排名的信息。</p>
-
-<h2 id="启动kafka-broker">启动Kafka Broker</h2>
+<h1 id="启动kafka-broker">启动Kafka Broker</h1>
 
 <p>因为只在开发环境中启动，可以准备如下的Dockerfile：</p>
 
@@ -95,7 +95,7 @@ WORKDIR /opt/kafka
 CMD [&quot;/run.sh&quot;]
 </code></pre>
 
-<pre><code class="language-run.sh```用于启动kafka和zookeeper，因为">
+<pre><code class="language-run.sh```用于启动kafka和zookeeper：">
 ```bash
 # 因为aws ec2免费实例的限制，所以降低kafka的配置
 export KAFKA_HEAP_OPTS=&quot;-Xmx256M -Xms128M&quot;
@@ -112,9 +112,9 @@ $ docker run --rm -it --name kafka \
     nepaws/kafka
 </code></pre>
 
-<h2 id="producer的实现">Producer的实现</h2>
+<h1 id="producer的实现">Producer的实现</h1>
 
-<h2 id="consumer的实现">Consumer的实现</h2>
+<h1 id="consumer的实现">Consumer的实现</h1>
 
   </section>
 
@@ -194,12 +194,9 @@ $ docker run --rm -it --name kafka \
     <div class="pane__side__content__title">目次</div>
     <nav id="TableOfContents">
 <ul>
-<li><a href="#实现producer和consumer">实现Producer和Consumer</a>
-<ul>
 <li><a href="#启动kafka-broker">启动Kafka Broker</a></li>
 <li><a href="#producer的实现">Producer的实现</a></li>
 <li><a href="#consumer的实现">Consumer的实现</a></li>
-</ul></li>
 </ul>
 </nav>
   </div>

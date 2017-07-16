@@ -17,7 +17,7 @@
       <pubDate>Sun, 16 Jul 2017 18:23:16 +0800</pubDate>
       
       <guid>https://neptuneg.github.io/post/kafka-producer-consumer-in-golang/</guid>
-      <description>Pull型的Consumer是Kafka的特征之一。因此Consumer可以根据实际的网络带宽环境来对所处理消息的流量进行调整。 实现Prod</description>
+      <description>Producer和Consumer可以直接使用logstash和fluentd针对Kafka的input/output插件，也可以基于各语言</description>
     </item>
     
   </channel>
