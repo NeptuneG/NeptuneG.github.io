@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Kafka on 大ばくち</title>
-    <link>https://neptuneg.github.io/tags/kafka/</link>
-    <description>Recent content in Kafka on 大ばくち</description>
+    <title>Go on 大ばくち</title>
+    <link>https://neptuneg.github.io/tags/go/</link>
+    <description>Recent content in Go on 大ばくち</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja-jp</language>
     <lastBuildDate>Sun, 16 Jul 2017 18:23:16 +0800</lastBuildDate>
     
-	<atom:link href="https://neptuneg.github.io/tags/kafka/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://neptuneg.github.io/tags/go/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -18,15 +18,6 @@
       
       <guid>https://neptuneg.github.io/post/kafka-producer-consumer-in-golang/</guid>
       <description>Pull型的Consumer是Kafka的特征之一。因此Consumer可以根据实际的网络带宽环境来对所处理消息的流量进行调整。 实现Prod</description>
-    </item>
-    
-    <item>
-      <title>Kafka一瞥</title>
-      <link>https://neptuneg.github.io/post/about-apache-kafka/</link>
-      <pubDate>Tue, 11 Jul 2017 23:20:25 +0800</pubDate>
-      
-      <guid>https://neptuneg.github.io/post/about-apache-kafka/</guid>
-      <description>Kafka的初衷 要理解Kafka的设计，直接研究Kafka在LinkedIn的业务场景，倒不如先看一篇IEEE的论文&amp;ldquo;Build</description>
     </item>
     
   </channel>
