@@ -78,7 +78,9 @@
 
 <h1 id="启动kafka-broker">启动Kafka Broker</h1>
 
-<p>因为只在开发环境中启动，可以准备如下的Dockerfile：</p>
+<h2 id="通过docker配置kafka">通过Docker配置Kafka</h2>
+
+<p>可以准备如下的Dockerfile：</p>
 
 <pre><code class="language-Dockerfile">FROM java:openjdk-8-jre
 
@@ -111,6 +113,18 @@ $ docker run --rm -it --name kafka \
     --publish 9092:9092 --publish 2181:2181 \
     nepaws/kafka
 </code></pre>
+
+<h2 id="在windows上配置kakfa">在Windows上配置Kakfa</h2>
+
+<p>将从官网下载的压缩包解压后，在Kafka所在目录以管理员权限执行以下命令：</p>
+
+<pre><code>C:\kafka_2.11-0.11.0.0&gt; mkdir \tmp
+C:\kafka_2.11-0.11.0.0&gt; mkdir \log
+C:\kafka_2.11-0.11.0.0&gt; start /b bin\windows\zookeeper-server-start.bat config\zookeeper.properties &gt; \log\zookeeper.log
+C:\kafka_2.11-0.11.0.0&gt; bin\windows\kafka-server-start.bat config\server.properties
+</code></pre>
+
+<p>zookeeper和kafka就会运行在默认的2181和9092端口上了。</p>
 
 <h1 id="producer的实现">Producer的实现</h1>
 
@@ -194,7 +208,11 @@ $ docker run --rm -it --name kafka \
     <div class="pane__side__content__title">目次</div>
     <nav id="TableOfContents">
 <ul>
-<li><a href="#启动kafka-broker">启动Kafka Broker</a></li>
+<li><a href="#启动kafka-broker">启动Kafka Broker</a>
+<ul>
+<li><a href="#通过docker配置kafka">通过Docker配置Kafka</a></li>
+<li><a href="#在windows上配置kakfa">在Windows上配置Kakfa</a></li>
+</ul></li>
 <li><a href="#producer的实现">Producer的实现</a></li>
 <li><a href="#consumer的实现">Consumer的实现</a></li>
 </ul>
