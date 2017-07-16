@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js" integrity="sha256-KbfTjB0WZ8vvXngdpJGY3Yp3xKk+tttbqClO11anCIU=" crossorigin="anonymous"></script>
+<script src="/js/highlight.pack.js"></script>
 
 <script>hljs.initHighlightingOnLoad();</script>
 <body>
@@ -95,9 +95,9 @@ WORKDIR /opt/kafka
 CMD [&quot;/run.sh&quot;]
 </code></pre>
 
-<pre><code class="language-run.sh```用于启动kafka和zookeeper：">
-```bash
-# 因为aws ec2免费实例的限制，所以降低kafka的配置
+<p>run.sh用于启动kafka和zookeeper：</p>
+
+<pre><code class="language-bash"># 因为aws ec2免费实例的限制，所以降低kafka的配置
 export KAFKA_HEAP_OPTS=&quot;-Xmx256M -Xms128M&quot;
 
 bin/zookeeper-server-start.sh config/zookeeper.properties &amp;
