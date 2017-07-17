@@ -26,7 +26,7 @@
       <pubDate>Tue, 11 Jul 2017 23:20:25 +0800</pubDate>
       
       <guid>https://neptuneg.github.io/post/about-apache-kafka/</guid>
-      <description>Kafka的初衷 要理解Kafka的设计，直接研究Kafka在LinkedIn的业务场景，倒不如先看一篇IEEE的论文&amp;ldquo;Build</description>
+      <description>Kafka的原理 Kafka由 Broker ， Producer 和 Consumer 三部分组成。Producer负责发布消息，Consumer读取消息。而作为Kafka的核心，Broke</description>
     </item>
     
   </channel>
