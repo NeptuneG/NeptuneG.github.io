@@ -128,7 +128,212 @@ C:\kafka_2.11-0.11.0.0&gt; bin\windows\kafka-server-start.bat config\server.prop
 
 <h1 id="producer的实现">Producer的实现</h1>
 
+<pre><code class="language-golang">package main
+
+import (
+	&quot;encoding/json&quot;
+	&quot;html/template&quot;
+	&quot;log&quot;
+	&quot;net/http&quot;
+	&quot;strconv&quot;
+
+	&quot;github.com/Shopify/sarama&quot;
+)
+
+// SalesProduct is the data model to be produced
+type SalesProduct struct {
+	Id          int
+	ProductName string
+	SalesDate   string
+	SalesNumber int
+}
+
+type SalesProductEncoder struct {
+	SalesProduct
+}
+
+func (this *SalesProductEncoder) Encode() ([]byte, error) {
+	return json.Marshal(this)
+}
+
+func (this *SalesProductEncoder) Length() int {
+	encoded, _ := json.Marshal(this)
+	return len(encoded)
+}
+
+var producer sarama.SyncProducer
+var autoIncrement int
+var topic = &quot;SalesProduct&quot;
+var brokers = []string{&quot;localhost:9092&quot;}
+
+func main() {
+
+	producer = initSyncProducer()
+	defer producer.Close()
+
+	http.HandleFunc(&quot;/&quot;, dumbHandler)
+	http.ListenAndServe(&quot;:9887&quot;, nil)
+
+}
+
+func initSyncProducer() sarama.SyncProducer {
+	config := sarama.NewConfig()
+	config.Producer.Return.Successes = true
+
+	producer, err := sarama.NewSyncProducer(brokers, config)
+	if err != nil {
+		panic(err)
+	}
+
+	return producer
+}
+
+func dumbHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == &quot;GET&quot; {
+		t, err := template.ParseFiles(&quot;index.html&quot;)
+		if err != nil {
+			panic(err)
+		}
+		err = t.Execute(w, nil)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		productName := r.FormValue(&quot;ProductName&quot;)
+		salesDate := r.FormValue(&quot;SalesDate&quot;)
+		salesNumber, err := strconv.Atoi(r.FormValue(&quot;SalesNumber&quot;))
+		if err != nil {
+			panic(err)
+		}
+
+		salesProduct := SalesProduct{
+			Id:          autoIncrement,
+			ProductName: productName,
+			SalesDate:   salesDate,
+			SalesNumber: salesNumber,
+		}
+		autoIncrement++
+
+		log.Println(salesProduct)
+
+		err = produceSyncMessage(producer, &amp;SalesProductEncoder{salesProduct})
+		if err != nil {
+			panic(err)
+		}
+
+		http.Redirect(w, r, &quot;/&quot;, 302)
+	}
+}
+
+func produceSyncMessage(producer sarama.SyncProducer, encoder sarama.Encoder) error {
+	message := &amp;sarama.ProducerMessage{
+		Topic: topic,
+		Value: encoder,
+	}
+
+	partition, offset, err := producer.SendMessage(message)
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf(&quot;Partition: %v, Offset: %v\n&quot;, partition, offset)
+
+	return nil
+}
+</code></pre>
+
 <h1 id="consumer的实现">Consumer的实现</h1>
+
+<pre><code class="language-golang">package main
+
+import (
+	&quot;log&quot;
+	&quot;os&quot;
+	&quot;os/signal&quot;
+
+	&quot;github.com/Shopify/sarama&quot;
+	&quot;encoding/json&quot;
+)
+
+// SalesProduct is the data model to be produced
+type SalesProduct struct {
+	Id          int
+	ProductName string
+	SalesDate   string
+	SalesNumber int
+}
+
+var autoIncrement int
+var topic = &quot;SalesProduct&quot;
+var brokers = []string{&quot;localhost:9092&quot;}
+var salesInfo map[string]int
+
+func main() {
+	salesInfo = make(map[string]int)
+
+	consumer := initConsumer()
+	defer consumer.Close()
+
+	partitionConsumer := createPartitionConsumer(consumer)
+	defer partitionConsumer.Close()
+
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt)
+
+	ch := make(chan struct{})
+
+	go func() {
+		for {
+			select {
+			case msg := &lt;-partitionConsumer.Messages():
+				consumeMessage(msg)
+				autoIncrement++
+			case err := &lt;-partitionConsumer.Errors():
+				log.Println(err)
+			case &lt;-signals:
+				ch &lt;- struct{}{}
+			}
+		}
+	}()
+
+	&lt;-ch
+}
+
+func initConsumer() sarama.Consumer {
+	config := sarama.NewConfig()
+
+	consumer, err := sarama.NewConsumer(brokers, config)
+	if err != nil {
+		panic(err)
+	}
+
+	return consumer
+}
+
+func createPartitionConsumer(consumer sarama.Consumer) sarama.PartitionConsumer {
+	partitionConsumer, err := consumer.ConsumePartition(topic, 0, sarama.OffsetNewest)
+	if err != nil {
+		panic(err)
+	}
+
+	return partitionConsumer
+}
+
+func consumeMessage(msg *sarama.ConsumerMessage) {
+	log.Printf(&quot;[%v] msg received: (%v, %v)\n&quot;, autoIncrement, string(msg.Key), string(msg.Value))
+	
+	var salesProduct SalesProduct
+	err := json.Unmarshal(msg.Value, &amp;salesProduct)
+	if err != nil {
+		panic(err)
+	}
+
+	salesVolume := salesInfo[salesProduct.ProductName]
+	salesInfo[salesProduct.ProductName] = salesVolume + salesProduct.SalesNumber
+
+	log.Printf(&quot;Sales volume of %s: %v\n&quot;, salesProduct.ProductName, salesInfo[salesProduct.ProductName])
+}
+</code></pre>
 
   </section>
 
