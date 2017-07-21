@@ -72,7 +72,7 @@
 <li>Consumer2 - 对每天的销售信息进行合计</li>
 </ul>
 
-<p>然后将合计的结果保存在Redis并且可以从Redis获得销售排名的信息。</p>
+<p>然后将合计的结果保存在Redis并且可以从Redis获得销售排名的信息。Redis的golang客户端使用<a href="https://github.com/garyburd/redigo">garyburd/redigo</a>。</p>
 
 <hr />
 
@@ -128,110 +128,63 @@ C:\kafka_2.11-0.11.0.0&gt; bin\windows\kafka-server-start.bat config\server.prop
 
 <h1 id="producer的实现">Producer的实现</h1>
 
-<pre><code class="language-golang">package main
+<p>sarama提供了AsyncProducer和SyncProducer两种Producer。两种Producer的创建过程基本相同，预先配置sarama.Config.Producer的各个属性，然后调用相应的创建方法。大部分情况下使用的AsyncProducer，以异步的方式产生消息并且用channel来就接收。SyncProducer在产生消息的时候一直会阻塞直至Kafka已经知晓消息已产生，这样的做法当然也会造成一部分性能上的损失。SyncProducer实际上的durability guarantees会依赖于创建Producer时 <code>Producer.RequiredAcks</code> （等价于JVM Producer的 <code>request.required.acks</code> ）的设定值，而且还会有message已被SyncProducer acknowledge却仍然会丢失的情况。</p>
 
-import (
-	&quot;encoding/json&quot;
-	&quot;html/template&quot;
-	&quot;log&quot;
-	&quot;net/http&quot;
-	&quot;strconv&quot;
+<h2 id="asyncproducer">AsyncProducer</h2>
 
-	&quot;github.com/Shopify/sarama&quot;
-)
-
-// SalesProduct is the data model to be produced
-type SalesProduct struct {
-	Id          int
-	ProductName string
-	SalesDate   string
-	SalesNumber int
-}
-
-type SalesProductEncoder struct {
-	SalesProduct
-}
-
-func (this *SalesProductEncoder) Encode() ([]byte, error) {
-	return json.Marshal(this)
-}
-
-func (this *SalesProductEncoder) Length() int {
-	encoded, _ := json.Marshal(this)
-	return len(encoded)
-}
-
-var producer sarama.SyncProducer
-var autoIncrement int
-var topic = &quot;SalesProduct&quot;
-var brokers = []string{&quot;localhost:9092&quot;}
-
-func main() {
-
-	producer = initSyncProducer()
-	defer producer.Close()
-
-	http.HandleFunc(&quot;/&quot;, dumbHandler)
-	http.ListenAndServe(&quot;:9887&quot;, nil)
-
-}
-
-func initSyncProducer() sarama.SyncProducer {
+<pre><code class="language-golang">func (ap *asyncProducer) InitProducer(brokers []string) {
+	
 	config := sarama.NewConfig()
+
+	producer, err := sarama.NewAsyncProducer(brokers, config)
+	if err != nil {
+		panic(err)
+	}
+	
+	ap.producer = producer
+}
+
+func (ap *asyncProducer) ProduceMessage(topic string, encoder sarama.Encoder) error {
+
+	message := &amp;sarama.ProducerMessage{
+		Topic: topic,
+		Value: encoder,
+	}
+
+	ap.producer.Input() &lt;- message
+
+	log.Println(message)
+	
+	return nil
+}
+</code></pre>
+
+<h2 id="syncproducer">SyncProducer</h2>
+
+<p><em>Producer.RequiredAcks</em> 有WaitForAll、WaitForLocal和NoResponse三种配置。</p>
+
+<pre><code class="language-golang">func (sp *syncProducer) InitProducer(brokers []string) {
+	
+	config := sarama.NewConfig()
+	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Return.Successes = true
 
 	producer, err := sarama.NewSyncProducer(brokers, config)
 	if err != nil {
 		panic(err)
 	}
-
-	return producer
+	
+	sp.producer = producer
 }
 
-func dumbHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == &quot;GET&quot; {
-		t, err := template.ParseFiles(&quot;index.html&quot;)
-		if err != nil {
-			panic(err)
-		}
-		err = t.Execute(w, nil)
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		productName := r.FormValue(&quot;ProductName&quot;)
-		salesDate := r.FormValue(&quot;SalesDate&quot;)
-		salesNumber, err := strconv.Atoi(r.FormValue(&quot;SalesNumber&quot;))
-		if err != nil {
-			panic(err)
-		}
-
-		salesProduct := SalesProduct{
-			Id:          autoIncrement,
-			ProductName: productName,
-			SalesDate:   salesDate,
-			SalesNumber: salesNumber,
-		}
-		autoIncrement++
-
-		log.Println(salesProduct)
-
-		err = produceSyncMessage(producer, &amp;SalesProductEncoder{salesProduct})
-		if err != nil {
-			panic(err)
-		}
-
-		http.Redirect(w, r, &quot;/&quot;, 302)
-	}
-}
-
-func produceSyncMessage(producer sarama.SyncProducer, encoder sarama.Encoder) error {
+func (sp *syncProducer) ProduceMessage(topic string, encoder sarama.Encoder) error {
+	
 	message := &amp;sarama.ProducerMessage{
 		Topic: topic,
 		Value: encoder,
 	}
 
-	partition, offset, err := producer.SendMessage(message)
+	partition, offset, err := sp.producer.SendMessage(message)
 	if err != nil {
 		panic(err)
 	}
@@ -244,37 +197,34 @@ func produceSyncMessage(producer sarama.SyncProducer, encoder sarama.Encoder) er
 
 <h1 id="consumer的实现">Consumer的实现</h1>
 
-<pre><code class="language-golang">package main
+<p>sarama.Consumer的创建方式和Producer类似，也是先配置Config在调用NewConsumer方法。（通过NewConsumer所创建的，其实是ConsumerGroup？）然后再根据给定的topic和partition创建一个专用于这个partition的consumer。如果已经有Consumer在消费这组给定的topic/partition，创建方法会返回错误。通过这样的机制可以保证 <em>同一个Partition的数据，只能被同一Consumer Group中的同一Consumer消费</em> 。</p>
 
-import (
-	&quot;log&quot;
-	&quot;os&quot;
-	&quot;os/signal&quot;
+<pre><code class="language-golang">func initConsumer() sarama.Consumer {
+	config := sarama.NewConfig()
 
-	&quot;github.com/Shopify/sarama&quot;
-	&quot;encoding/json&quot;
-)
+	consumer, err := sarama.NewConsumer(brokers, config)
+	if err != nil {
+		panic(err)
+	}
 
-// SalesProduct is the data model to be produced
-type SalesProduct struct {
-	Id          int
-	ProductName string
-	SalesDate   string
-	SalesNumber int
+	return consumer
 }
 
-var autoIncrement int
-var topic = &quot;SalesProduct&quot;
-var brokers = []string{&quot;localhost:9092&quot;}
-var salesInfo map[string]int
+func createPartitionConsumer() sarama.PartitionConsumer {
+	partitionConsumer, err := consumer.ConsumePartition(topic, 0, sarama.OffsetNewest)
+	if err != nil {
+		panic(err)
+	}
+
+	return partitionConsumer
+}
 
 func main() {
-	salesInfo = make(map[string]int)
-
-	consumer := initConsumer()
+	
+	consumer = initConsumer()
 	defer consumer.Close()
 
-	partitionConsumer := createPartitionConsumer(consumer)
+	partitionConsumer := createPartitionConsumer()
 	defer partitionConsumer.Close()
 
 	signals := make(chan os.Signal, 1)
@@ -298,42 +248,9 @@ func main() {
 
 	&lt;-ch
 }
-
-func initConsumer() sarama.Consumer {
-	config := sarama.NewConfig()
-
-	consumer, err := sarama.NewConsumer(brokers, config)
-	if err != nil {
-		panic(err)
-	}
-
-	return consumer
-}
-
-func createPartitionConsumer(consumer sarama.Consumer) sarama.PartitionConsumer {
-	partitionConsumer, err := consumer.ConsumePartition(topic, 0, sarama.OffsetNewest)
-	if err != nil {
-		panic(err)
-	}
-
-	return partitionConsumer
-}
-
-func consumeMessage(msg *sarama.ConsumerMessage) {
-	log.Printf(&quot;[%v] msg received: (%v, %v)\n&quot;, autoIncrement, string(msg.Key), string(msg.Value))
-	
-	var salesProduct SalesProduct
-	err := json.Unmarshal(msg.Value, &amp;salesProduct)
-	if err != nil {
-		panic(err)
-	}
-
-	salesVolume := salesInfo[salesProduct.ProductName]
-	salesInfo[salesProduct.ProductName] = salesVolume + salesProduct.SalesNumber
-
-	log.Printf(&quot;Sales volume of %s: %v\n&quot;, salesProduct.ProductName, salesInfo[salesProduct.ProductName])
-}
 </code></pre>
+
+<h1 id="与redis的连携">与Redis的连携</h1>
 
   </section>
 
@@ -418,8 +335,13 @@ func consumeMessage(msg *sarama.ConsumerMessage) {
 <li><a href="#通过docker配置kafka">通过Docker配置Kafka</a></li>
 <li><a href="#在windows上配置kakfa">在Windows上配置Kakfa</a></li>
 </ul></li>
-<li><a href="#producer的实现">Producer的实现</a></li>
+<li><a href="#producer的实现">Producer的实现</a>
+<ul>
+<li><a href="#asyncproducer">AsyncProducer</a></li>
+<li><a href="#syncproducer">SyncProducer</a></li>
+</ul></li>
 <li><a href="#consumer的实现">Consumer的实现</a></li>
+<li><a href="#与redis的连携">与Redis的连携</a></li>
 </ul>
 </nav>
   </div>
