@@ -25,7 +25,7 @@
 
 <div class="pane">
 
-  <div class="pane__main--splited">
+  <div class="pane__main">
 
 <header id="header">
     <div class="p-signboard">
@@ -101,12 +101,15 @@ comac_get_args_cnt( 0, &quot;&quot;,  7, 6, 5, 4, 3, 2, 1, 0)
 <pre><code class="language-c++">#define comac_argc( ... ) comac_get_args_cnt( 0,__VA_ARGS__,comac_args_seqs() )
 </code></pre>
 
-<p>这是gcc自己实现的一个特性，在<a href="https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html">gcc的文档</a>中有这样的描述：
-&gt; Second, the ‘##’ token paste operator has a special meaning when placed between a comma and a variable argument. If you write
-&gt; <code>c++
-&gt;#define eprintf(format, …) fprintf (stderr, format, ##__VA_ARGS__)
-&gt;</code>
-&gt; and the variable argument is left out when the eprintf macro is used, then the comma before the ‘##’ will be deleted. This does not happen if you pass an empty argument, nor does it happen if the token preceding ‘##’ is anything other than a comma.</p>
+<p>这是gcc自己实现的一个特性，在<a href="https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html">gcc的文档</a>中有这样的描述：</p>
+
+<blockquote>
+<p>Second, the ‘##’ token paste operator has a special meaning when placed between a comma and a variable argument. If you write</p>
+
+<p>#define eprintf(format, …) fprintf (stderr, format, ##<strong>VA_ARGS</strong>)</p>
+
+<p>and the variable argument is left out when the eprintf macro is used, then the comma before the ‘##’ will be deleted. This does not happen if you pass an empty argument, nor does it happen if the token preceding ‘##’ is anything other than a comma.</p>
+</blockquote>
 
 <p>也就是说如果 <code>##</code> 写在一个逗号和 <code>__VA_ARGS__</code> 之间且可变参数为空的时候， <code>##</code> 前的逗号会被删除。所以 <code>comac_argc()</code> 的展开过程是这样的：</p>
 
@@ -208,13 +211,6 @@ comac_get_args_cnt( 0,  , 7, 6, 5, 4, 3, 2, 1, 0)
 </div>
 
 
-
-<div class="pane__side">
-  <div class="pane__side__content">
-    <div class="pane__side__content__title">目次</div>
-    
-  </div>
-</div>
 
 
 </div>
