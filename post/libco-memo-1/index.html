@@ -106,10 +106,9 @@ comac_get_args_cnt( 0, &quot;&quot;,  7, 6, 5, 4, 3, 2, 1, 0)
 <blockquote>
 <p>Second, the ‘##’ token paste operator has a special meaning when placed between a comma and a variable argument. If you write</p>
 
-<p>#define eprintf(format, …) fprintf (stderr, format, ##<strong>VA_ARGS</strong>)</p>
-
-<p>and the variable argument is left out when the eprintf macro is used, then the comma before the ‘##’ will be deleted. This does not happen if you pass an empty argument, nor does it happen if the token preceding ‘##’ is anything other than a comma.</p>
-</blockquote>
+<p><code>#define eprintf(format, …) fprintf (stderr, format, ##__VA_ARGS__)</code>
+&gt;
+&gt; and the variable argument is left out when the eprintf macro is used, then the comma before the ‘##’ will be deleted. This does not happen if you pass an empty argument, nor does it happen if the token preceding ‘##’ is anything other than a comma.</p>
 
 <p>也就是说如果 <code>##</code> 写在一个逗号和 <code>__VA_ARGS__</code> 之间且可变参数为空的时候， <code>##</code> 前的逗号会被删除。所以 <code>comac_argc()</code> 的展开过程是这样的：</p>
 
@@ -120,6 +119,7 @@ comac_get_args_cnt( 0, 7, 6, 5, 4, 3, 2, 1, 0)
 /*↓*/
 0
 </code></pre>
+</blockquote>
 
 <p>如果删掉了 <code>##</code> ，展开过程就变为：</p>
 
