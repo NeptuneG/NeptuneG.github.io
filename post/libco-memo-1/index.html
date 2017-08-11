@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>libco源码学习(一）</title>
+
+  <link href="https://neptuneg.github.io/index.xml" rel="alternate" type="application/rss+xml" title="大ばくち" />
+  <link href="https://neptuneg.github.io/index.xml" rel="feed" type="application/rss+xml" title="大ばくち" />
+
+<link rel="stylesheet" href="/css/theme.css">
+
+<link rel="stylesheet" href="/css/logo.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/sawarabimincho.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Istok+Web|Roboto+Mono">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+<script src="/js/highlight.pack.js"></script>
+
+<script>hljs.initHighlightingOnLoad();</script>
+<body>
+
+
+<div class="pane">
+
+  <div class="pane__main--splited">
+
+<header id="header">
+    <div class="p-signboard">
+      <a class="p-signboard__top-link" href="/">
+        <div class="c-brand">
+          
+            <figure><ul class="c-logo"><li/><li/><li/></ul></figure>
+          
+          <h1>大ばくち</h1>
+        </div>
+      </a>
+  </div>
+</header>
+
+
+<main>
+
+
+<article class="p-article">
+
+  
+
+  <div class="p-article__title">
+    <div class="c-calendar">
+        <div class="c-calendar__month">八　月</div>
+        <div class="c-calendar__day-of-month"><span>11</span></div>
+        <div class="c-calendar__day-of-week"><span>金曜日</span></div>
+    </div>
+    <h1 class="p-article__title__text">libco源码学习(一）<span>
+    </h1>
+  </div>
+
+  <section class="p-article__content">
+  <p>其实C++11已经提供了<a href="https://msdn.microsoft.com/zh-cn/library/dd293608.aspx">lambda表达式</a>，索性就梳理一下 <code>co_closure.h</code> 里一些宏定义的用法。</p>
+
+<p>求宏可变参数个数：</p>
+
+<pre><code class="language-c++">#define comac_get_args_cnt( ... ) comac_arg_n( __VA_ARGS__ )
+#define comac_arg_n( _0,_1,_2,_3,_4,_5,_6,_7,N,...) N
+#define comac_args_seqs() 7,6,5,4,3,2,1,0
+
+#define comac_argc( ... ) comac_get_args_cnt( 0,##__VA_ARGS__,comac_args_seqs() )
+</code></pre>
+
+<p>例如 <code>comac_argc(total,v2,m)</code> 会有以下的展开过程：</p>
+
+<pre><code class="language-c++">comac_argc(total,v2,m)
+/*↓*/
+comac_get_args_cnt( 0, total, v2, m, 7, 6, 5, 4, 3, 2, 1, 0)
+/*→    comac_arg_n(_0,    _1, _2,_3,_4,_5,_6,_7, N, ...) */
+/*↓*/
+3
+</code></pre>
+
+<p>但是对于 <code>comac_argc()</code> 的情况，会有两个因素影响展开的结果。
+如果编译时添加 <code>-std=c++11</code> 的选项， <code>comac_argc()</code> 会被展开成1。这是因为在<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2004/n1653.htm">C++11标准</a>下，空的可变参数会被解释成 <code>&quot;&quot;</code> 。 <code>comac_argc()</code> 的展开过程也就变成了下面的情况：</p>
+
+<pre><code class="language-c++">comac_argc()
+/*↓*/
+comac_get_args_cnt( 0, &quot;&quot;,  7, 6, 5, 4, 3, 2, 1, 0)
+/*→    comac_arg_n(_0, _1, _2,_3,_4,_5,_6,_7, N, ...) */
+/*↓*/
+1
+</code></pre>
+
+<p>另外一个会使 <code>comac_argc()</code> 被展开成1的陷阱是将</p>
+
+<pre><code class="language-c++">#define comac_argc( ... ) comac_get_args_cnt( 0,##__VA_ARGS__,comac_args_seqs() )
+</code></pre>
+
+<p>写作</p>
+
+<pre><code class="language-c++">#define comac_argc( ... ) comac_get_args_cnt( 0,__VA_ARGS__,comac_args_seqs() )
+</code></pre>
+
+<p>这是gcc自己实现的一个特性，在<a href="https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html">gcc的文档</a>中有这样的描述：
+&gt; Second, the ‘##’ token paste operator has a special meaning when placed between a comma and a variable argument. If you write
+&gt; <code>c++
+&gt;#define eprintf(format, …) fprintf (stderr, format, ##__VA_ARGS__)
+&gt;</code>
+&gt; and the variable argument is left out when the eprintf macro is used, then the comma before the ‘##’ will be deleted. This does not happen if you pass an empty argument, nor does it happen if the token preceding ‘##’ is anything other than a comma.</p>
+
+<p>也就是说如果 <code>##</code> 写在一个逗号和 <code>__VA_ARGS__</code> 之间且可变参数为空的时候， <code>##</code> 前的逗号会被删除。所以 <code>comac_argc()</code> 的展开过程是这样的：</p>
+
+<pre><code class="language-c++">comac_argc()
+/*↓*/
+comac_get_args_cnt( 0, 7, 6, 5, 4, 3, 2, 1, 0)
+/*→    comac_arg_n(_0,_1,_2,_3,_4,_5,_6,_7, N, ...) */
+/*↓*/
+0
+</code></pre>
+
+<p>如果删掉了 <code>##</code> ，展开过程就变为：</p>
+
+<pre><code class="language-c++">comac_argc()
+/*↓*/
+comac_get_args_cnt( 0,  , 7, 6, 5, 4, 3, 2, 1, 0)
+/*→    comac_arg_n(_0,_1,_2,_3,_4,_5,_6,_7, N, ...) */
+/*↓*/
+1
+</code></pre>
+
+  </section>
+
+</article>
+
+</main>
+
+<footer id="footer">
+  <div class="p-tail">
+    <ul class="p-tail__years">
+      
+      <li class="p-tail__years__year">
+        <a href="/archives/2017">2017</a>
+      </li>
+      
+    </ul>
+    <ul class="p-tail__tags">
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/c&#43;&#43;">c&#43;&#43;</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/design">design</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/github">github</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/go">go</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/hugo">hugo</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/kafka">kafka</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/libco">libco</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/theme">theme</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/wercker">wercker</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97">分布式消息队列</a>
+      </li>
+      
+      <li class="p-tail__tags__tag">
+        <a href="/tags/%E5%AE%8F%E5%AE%9A%E4%B9%89">宏定义</a>
+      </li>
+      
+    </ul>
+    <div class="p-tail__end">
+      <div class="p-tail__contact">
+        
+        <a href="https://github.com/NeptuneG"><i class="fa fa-github fa-3x" aria-hidden="true"></i></a>
+        
+        
+      </div>
+      <div class="p-tail__copyright">
+        Designed by <a href="https://github.com/nijohando/hugo-rokkaku-theme">二畳半堂</a>  &copy; 2017 Kan.U All rights reserved.
+      </div>
+  </div>
+    </div>
+</footer>
+
+
+</div>
+
+
+
+<div class="pane__side">
+  <div class="pane__side__content">
+    <div class="pane__side__content__title">目次</div>
+    
+  </div>
+</div>
+
+
+</div>
+
+
+</body>
+</html>
+
